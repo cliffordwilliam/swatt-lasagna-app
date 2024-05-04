@@ -1,10 +1,10 @@
 import SidebarLinksList from "./sidebar-links-list";
 
-const Sidebar = () => {
+const Sidebar = ({ resIsAdmin }: { resIsAdmin: boolean }) => {
   return (
     <>
-      <aside className="border-r bg-red-300">
-        <SidebarLinksList />
+      <aside className="py-4">
+        <SidebarLinksList resIsAdmin={resIsAdmin} />
       </aside>
     </>
   );

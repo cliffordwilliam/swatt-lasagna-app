@@ -5,7 +5,7 @@ interface SignInProps {
   setCookie: (token: string) => Promise<void>;
 }
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import axios, { AxiosResponse } from "axios";
 
@@ -136,7 +136,7 @@ const SignIn: FunctionComponent<SignInProps> = ({ setCookie }) => {
                     <FormItem>
                       <FormLabel>Kata sandi</FormLabel>
                       <FormControl>
-                        <Input placeholder="1234" {...field} />
+                        <Input type="password" placeholder="1234" {...field} />
                       </FormControl>
                       <FormDescription>
                         Masukkan kata sandi di sini.

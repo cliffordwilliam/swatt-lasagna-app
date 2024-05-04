@@ -1,23 +1,22 @@
 import Navbar from "@/components/navbar";
 import Sidebar from "@/components/sidebar";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { isAuthenticated } from "../actions/cookie";
+import { isAdmin } from "../actions/cookie";
 
 // Everything but sign-in is protected, need session
 const Layout = async ({ children }: { children: React.ReactNode }) => {
-  const session = cookies().get("session")?.value;
-
-  if (!session) {
+  const resAuthenticated = await isAuthenticated();
+  if (!resAuthenticated) {
     redirect("/sign-in");
   }
 
+  const resIsAdmin = await isAdmin();
+
   return (
     <>
-      <Navbar />
-      <div className="flex min-h-dvh">
-        <Sidebar />
-        <main>{children}</main>
-      </div>
+      <Navbar resIsAdmin={resIsAdmin} />
+      <main>{children}</main>
     </>
   );
 };
