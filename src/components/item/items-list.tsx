@@ -14,11 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Skeleton } from "./ui/skeleton";
-import { useToast } from "./ui/use-toast";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Skeleton } from "../ui/skeleton";
+import { useToast } from "../ui/use-toast";
 
 import { FunctionComponent, useEffect, useState } from "react";
 
@@ -120,7 +120,6 @@ const ItemsList: FunctionComponent<ItemsListProps> = ({ getToken }) => {
     perPage,
     getToken,
     router,
-    searchString,
     toast,
   ]);
 

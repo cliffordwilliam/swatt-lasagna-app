@@ -1,18 +1,30 @@
 "use client";
 
-import { Clipboard, Home, List, User } from "lucide-react";
+import {
+  Clipboard,
+  Home,
+  List,
+  User,
+  FilePen,
+  ShoppingBag,
+  Gift,
+} from "lucide-react";
 import SidebarLinkItem from "./sidebar-link-item";
 
 const allLinks = [
   { name: "Halaman Utama", href: "/", Icon: Home },
   { name: "Items", href: "/items", Icon: List },
   { name: "Orders", href: "/orders", Icon: Clipboard },
+  { name: "Pembeli", href: "/pembelis", Icon: ShoppingBag },
+  { name: "Penerima", href: "/penerimas", Icon: Gift },
 ];
 const adminLinks = [
   { name: "Halaman Utama", href: "/", Icon: Home },
   { name: "Items", href: "/items", Icon: List },
   { name: "Orders", href: "/orders", Icon: Clipboard },
-  { name: "Tambah User", href: "/admin/create-user", Icon: User },
+  { name: "Pembeli", href: "/pembelis", Icon: ShoppingBag },
+  { name: "Penerima", href: "/penerimas", Icon: Gift },
+  { name: "User", href: "/admin/users", Icon: User },
 ];
 
 const SidebarLinksList = ({ resIsAdmin }: { resIsAdmin: boolean }) => {

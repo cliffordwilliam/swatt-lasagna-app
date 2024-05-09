@@ -28,8 +28,8 @@ const SidebarLinkItem = ({
           isActive && "bg-sky-100"
         )}
       >
-        <span>{name}</span>
         <Icon className="w-4 h-4" />
+        <span>{name}</span>
       </Link>
     </>
   );

@@ -1,17 +1,10 @@
 "use client";
 
 import { FunctionComponent } from "react";
-
-import { Loader2 } from "lucide-react";
-
 import { useState } from "react";
-
 import axios, { AxiosResponse } from "axios";
-
 import { useToast } from "@/components/ui/use-toast";
-
 import { useRouter } from "next/navigation";
-
 import {
   Card,
   CardContent,
@@ -20,11 +13,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -37,62 +28,77 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-interface SignInProps {
-  setCookie: (token: string) => Promise<void>;
+interface CreatePenerimaProps {
+  getToken: () => Promise<string>;
 }
 
+const phoneRegex = /^08[0-9]{8,11}$/;
+
 const formSchema = z.object({
-  username: z.string().min(2, {
+  nama: z.string().min(2, {
     message: "Nama harus minimal 2 karakter.",
   }),
-  password: z.string().min(2, {
-    message: "Kata sandi harus minimal 2 karakter.",
+  alamat: z.string().min(2, {
+    message: "Alamat harus minimal 2 karakter.",
+  }),
+  noHp: z.string().refine((value) => phoneRegex.test(value), {
+    message: "Nomor HP harus berformat Indonesia yang valid.",
   }),
 });
 
-const SignIn: FunctionComponent<SignInProps> = ({ setCookie }) => {
+const CreatePenerima: FunctionComponent<CreatePenerimaProps> = ({ getToken }) => {
   const [isLoading, setLoading] = useState(false);
-
   const { toast } = useToast();
-
   const route = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
-      password: "",
+      nama: "",
+      alamat: "",
+      noHp: "",
     },
   });
 
-  interface LoginResponse {
-    access_token: string;
+  interface CreatePembeliResponse {
+    id: string;
+    nama: string;
+    alamat: string;
+    noHp: string;
+    createdAt: string;
+    updatedAt: string;
   }
 
   async function onSubmit(value: z.infer<typeof formSchema>) {
     try {
       setLoading(true);
 
-      const response: AxiosResponse<LoginResponse> = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
-        value
+      const token = await getToken();
+
+      const response: AxiosResponse<CreatePembeliResponse> = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/penerimas`,
+        value,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
-      if (response?.data?.access_token) {
+      if (response?.data) {
         toast({
-          title: "Login Berhasil",
-          description: "Anda telah berhasil masuk.",
+          title: "Penerima Berhasil",
+          description: "Anda telah berhasil menambah penerima.",
         });
-        await setCookie(response?.data?.access_token);
-        route.push("/");
+        route.push("/penerimas");
       } else {
-        throw new Error("Invalid response: access_token is missing");
+        throw new Error("Invalid response: data is missing");
       }
     } catch (error) {
       toast({
-        title: "Login Gagal",
+        title: "Penerima Gagal",
         description:
-          "Gagal masuk. Harap periksa kredensial Anda dan coba lagi.",
+          "Gagal menambah penerima. Harap periksa kredensial Anda dan coba lagi.",
       });
     } finally {
       setLoading(false);
@@ -101,19 +107,19 @@ const SignIn: FunctionComponent<SignInProps> = ({ setCookie }) => {
 
   return (
     <>
-      <Card className="w-full max-w-sm">
+      <Card className="w-full">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader>
-              <CardTitle className="text-2xl">Masuk</CardTitle>
+              <CardTitle className="text-2xl">Tambah Penerima</CardTitle>
               <CardDescription>
-                Tolong masukan nama dan kata sandi.
+                Tolong masukan nama, alamat dan nomor telepon.
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4">
               <FormField
                 control={form.control}
-                name="username"
+                name="nama"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nama</FormLabel>
@@ -127,15 +133,29 @@ const SignIn: FunctionComponent<SignInProps> = ({ setCookie }) => {
               />
               <FormField
                 control={form.control}
-                name="password"
+                name="alamat"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kata sandi</FormLabel>
+                    <FormLabel>Alamat</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="1234" {...field} />
+                      <Input placeholder="Jl.Hegar Asih" {...field} />
+                    </FormControl>
+                    <FormDescription>Masukan alamat di sini.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="noHp"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nomor Telepon</FormLabel>
+                    <FormControl>
+                      <Input placeholder="081313" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Masukan kata sandi di sini.
+                      Masukan nomor telepon di sini.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -144,14 +164,7 @@ const SignIn: FunctionComponent<SignInProps> = ({ setCookie }) => {
             </CardContent>
             <CardFooter>
               <Button className="w-full" type="submit" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Harap
-                    Tunggu
-                  </>
-                ) : (
-                  "Masuk"
-                )}
+                Kirim
               </Button>
             </CardFooter>
           </form>
@@ -161,4 +174,4 @@ const SignIn: FunctionComponent<SignInProps> = ({ setCookie }) => {
   );
 };
 
-export default SignIn;
+export default CreatePenerima;
