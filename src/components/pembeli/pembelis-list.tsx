@@ -40,9 +40,11 @@ import useDebounce from "@/hooks/use-debounce";
 
 interface PembelisListProps {
   getToken: () => Promise<string>;
+  isOrderMode?: boolean;
+  onPilihClicked?: (pembeli: Pembeli) => void;
 }
 
-interface Pembeli {
+export interface Pembeli {
   id: string;
   nama: string;
   alamat: string;
@@ -51,7 +53,11 @@ interface Pembeli {
   updatedAt: string;
 }
 
-const PembelisList: FunctionComponent<PembelisListProps> = ({ getToken }) => {
+const PembelisList: FunctionComponent<PembelisListProps> = ({
+  getToken,
+  isOrderMode = false,
+  onPilihClicked,
+}) => {
   const [isLoading, setLoading] = useState(false);
   const [pembelis, setPembelis] = useState([] as Pembeli[]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -333,6 +339,62 @@ const PembelisList: FunctionComponent<PembelisListProps> = ({ getToken }) => {
     </>
   );
 
+  const renderActionButtons = (pembeli: Pembeli) => {
+    if (isOrderMode) {
+      return (
+        <CardFooter className="flex gap-2">
+          {onPilihClicked && (
+            <Button
+              onClick={() => {
+                onPilihClicked(pembeli);
+              }}
+            >
+              Pilih
+            </Button>
+          )}
+        </CardFooter>
+      );
+    } else {
+      return (
+        <CardFooter className="flex gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="destructive">Hapus</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Yakin mau menghapus pembeli?</DialogTitle>
+                <DialogDescription>
+                  Sekali di hapus pembeli ini akan hilang selamanya.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="destructive"
+                  type="submit"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDelete(pembeli.id);
+                  }}
+                >
+                  Hapus
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              handleEdit(pembeli.id);
+            }}
+          >
+            Ubah
+          </Button>
+        </CardFooter>
+      );
+    }
+  };
+
   if (isLoading) {
     return (
       <>
@@ -369,41 +431,7 @@ const PembelisList: FunctionComponent<PembelisListProps> = ({ getToken }) => {
               <CardContent className="space-y-4 border-t px-6 py-8">
                 <div className="text-4xl font-bold">{pembeli.noHp}</div>
               </CardContent>
-              <CardFooter className="flex gap-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="destructive">Hapus</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Yakin mau menghapus pembeli?</DialogTitle>
-                      <DialogDescription>
-                        Sekali di hapus pembeli ini akan hilang selamanya.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                      <Button
-                        variant="destructive"
-                        type="submit"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDelete(pembeli.id);
-                        }}
-                      >
-                        Hapus
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleEdit(pembeli.id);
-                  }}
-                >
-                  Ubah
-                </Button>
-              </CardFooter>
+              {renderActionButtons(pembeli)}
             </Card>
           ))}
         </div>
